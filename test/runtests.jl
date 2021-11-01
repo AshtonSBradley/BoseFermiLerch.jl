@@ -1,6 +1,7 @@
 using BoseFermi
+using SpecialFunctions
 using Test
 
-@testset "BoseFermi.jl" begin
-    # Write your tests here.
-end
+≈(x,y)=isapprox(x,y,rtol=1e-4)
+@testset "bose tests" begin include("bose_tests.jl") end
+

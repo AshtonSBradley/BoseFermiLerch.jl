@@ -1,5 +1,9 @@
 module BoseFermi
 
-# Write your package code here.
+import SpecialFunctions.zeta
+
+export bose
+
+include("bose.jl")
 
 end
