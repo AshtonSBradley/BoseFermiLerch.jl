@@ -1,3 +1,5 @@
+gamma_inc_Q(p,x)=gamma_inc(p,x,0)[2]
+
 """
 `bose(ν,z,y)`
 
@@ -25,12 +27,12 @@ function bose(ν,z,y=0.,rtol=1e-6,atol=rtol)
     (z == 1 && y == 0) && return zeta(ν)
     (ν == 1 && z == 0.5 ) && return log(2)
     k = 1
-    Sk = z^k/k^ν*sf_gamma_inc_Q(ν,k*y)
-    Skplus1 = Sk + z^(k+1)/(k+1)^ν*sf_gamma_inc_Q(ν,(k+1)*y)
+    Sk = z^k/k^ν*gamma_inc_Q(ν,k*y)
+    Skplus1 = Sk + z^(k+1)/(k+1)^ν*gamma_inc_Q(ν,(k+1)*y)
     while !isapprox(Sk,Skplus1,rtol=rtol,atol=atol)
         k += 1
         Sk = Skplus1
-        Skplus1 += z^(k+1)/(k+1)^ν*sf_gamma_inc_Q(ν,(k+1)*y)
+        Skplus1 += z^(k+1)/(k+1)^ν*gamma_inc_Q(ν,(k+1)*y)
     end
     return Sk
 end
