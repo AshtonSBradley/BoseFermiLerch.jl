@@ -51,6 +51,21 @@ This implementation requires the normalized incomplete gamma function.
 function bose(z,s,b=0;rtol=1e-9,atol=rtol) 
     return z*lerch(z,s,1.0,b,rtol=rtol,atol=atol)
 end
+# function bose(z,s,y=0.;rtol=1e-6,atol=rtol)
+#     @assert 0 <= s
+#     @assert 0 <= y
+#     # (z == 1 && y == 0) && return zeta(s)
+#     # (s == 1 && z == 0.5 ) && return log(2)
+#     k = 1
+#     Sk = z^k/k^s*gamma_inc_Q(s,k*y)
+#     Skplus1 = Sk + z^(k+1)/(k+1)^s*gamma_inc_Q(s,(k+1)*y)
+#     while !isapprox(Sk,Skplus1,rtol=rtol,atol=atol)
+#         k += 1
+#         Sk = Skplus1
+#         Skplus1 += z^(k+1)/(k+1)^s*gamma_inc_Q(s,(k+1)*y)
+#     end
+#     return Sk
+# end
 
 """
 `fermi(z,ν,y)`
