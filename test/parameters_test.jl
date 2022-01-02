@@ -9,9 +9,15 @@ using BenchmarkTools, Test
 ≈(a,b) = isapprox(a,b,rtol=1e-4)
 
 ## Lerchphi test 
-z,s,a,b =0.1,1.5,1.,0.
+z,s,a,b =.5,1,1.,0.
 
 ## bose
+lerch(z,s,a,b,rtol=1e-9)
+@btime lerch(z,s,a,b,rtol=1e-9)
+
+bose(z,s,b,rtol=1e-9)
+z*lerch(z,s,a,b,rtol=1e-9)
+
 @btime bose(z,s,b,rtol=1e-9)
 @btime z*lerch(z,s,a,b,rtol=1e-9)
 

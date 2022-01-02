@@ -1,31 +1,14 @@
 module BoseFermi
 
-import SpecialFunctions: zeta, gamma, gamma_inc
+import SpecialFunctions: zeta, gamma 
+using QuadGK 
 
 export bose, fermi, lerch 
 
-gamma_inc_Q(p,x) = gamma_inc(p,x)[2]
+lerch_int(t,z,s,a) = 1/gamma(s)t^(s-1)*exp(-a*t)/(1-z*exp(-t))
 
-function lerch_term(z,s,a,b,k)
-    return z^k/(k+a)^s*gamma_inc_Q(s,(k+a)*b)
-end
+lerch(z,s,a,b;rtol=1e-8) = quadgk(t->lerch_int(t,z,s,a),b,Inf,rtol=rtol)[1]
 
-function lerch(z,s,a=1.0,b=0.0;rtol=1e-8,atol=rtol)
-    @assert 0.0 <= s
-    @assert 0.0 <= b
-    @assert 0.0 < a
-    (z == 1 && b == 0) && return zeta(s)
-    (z == 0.5 && s == 1) && return 2*log(2)
-    k = 0
-    Sk = lerch_term(z,s,a,b,k)
-    Skp1 = Sk + lerch_term(z,s,a,b,k+1)
-    while !isapprox(Sk,Skp1,rtol=rtol,atol=atol)
-        k += 1
-        Sk = Skp1
-        Skp1 += lerch_term(z,s,a,b,k+1)
-    end
-    return Sk
-end
 
 """
 `bose(z,ν,y)`
@@ -48,24 +31,17 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function bose(z,s,b=0;rtol=1e-9,atol=rtol) 
-    return z*lerch(z,s,1.0,b,rtol=rtol,atol=atol)
+function bose(z,s,b=0;rtol=1e-8) 
+    @assert 0 <= s
+    @assert 0 <= y
+    if z == one(z) && b == 0
+        return zeta(s)
+    elseif z == 0.5 && s == 1
+        return log(2)
+    else 
+        return z*lerch(z,s,1.0,b,rtol=rtol)
+    end
 end
-# function bose(z,s,y=0.;rtol=1e-6,atol=rtol)
-#     @assert 0 <= s
-#     @assert 0 <= y
-#     # (z == 1 && y == 0) && return zeta(s)
-#     # (s == 1 && z == 0.5 ) && return log(2)
-#     k = 1
-#     Sk = z^k/k^s*gamma_inc_Q(s,k*y)
-#     Skplus1 = Sk + z^(k+1)/(k+1)^s*gamma_inc_Q(s,(k+1)*y)
-#     while !isapprox(Sk,Skplus1,rtol=rtol,atol=atol)
-#         k += 1
-#         Sk = Skplus1
-#         Skplus1 += z^(k+1)/(k+1)^s*gamma_inc_Q(s,(k+1)*y)
-#     end
-#     return Sk
-# end
 
 """
 `fermi(z,ν,y)`
@@ -88,8 +64,10 @@ f_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function fermi(z,s,b=0;rtol=1e-9,atol=rtol)
-    return z*lerch(-z,s,1.0,b,rtol=rtol,atol=atol)
+function fermi(z,s,b=0;rtol=1e-8)
+    @assert 0 <= s
+    @assert 0 <= y
+    return z*lerch(-z,s,1.0,b,rtol=rtol)
 end 
 
 end
