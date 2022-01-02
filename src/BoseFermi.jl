@@ -1,14 +1,14 @@
 module BoseFermi
 
-# import GSL.sf_gamma_inc_Q
-# gamma_inc_Q(p,x)=f_gamma_inc_Q(p,x)
-# include("bose.jl")
-
-import SpecialFunctions:zeta, gamma, gamma_inc
+import SpecialFunctions: zeta, gamma, gamma_inc
 
 export bose, fermi, lerch 
 
 gamma_inc_Q(p,x) = gamma_inc(p,x)[2]
+
+function lerch_term(z,s,a,b,k)
+    return z^k/(k+a)^s*gamma_inc_Q(s,(k+a)*b)
+end
 
 function lerch(z,s,a=1.0,b=0.0;rtol=1e-8,atol=rtol)
     @assert 0.0 <= s
@@ -25,10 +25,6 @@ function lerch(z,s,a=1.0,b=0.0;rtol=1e-8,atol=rtol)
         Skp1 += lerch_term(z,s,a,b,k+1)
     end
     return Sk
-end
-
-function lerch_term(z,s,a,b,k)
-    return z^k/(k+a)^s*gamma_inc_Q(s,(k+a)*b)
 end
 
 """
@@ -52,9 +48,9 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-bose(z,s,b=0;rtol=1e-9,atol=rtol) = z*lerch(z,s,1.0,b,rtol=rtol,atol=atol)
-
-
+function bose(z,s,b=0;rtol=1e-9,atol=rtol) 
+    return z*lerch(z,s,1.0,b,rtol=rtol,atol=atol)
+end
 
 """
 `fermi(z,ν,y)`
@@ -77,41 +73,8 @@ f_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-fermi(z,s,b=0;rtol=1e-9,atol=rtol) = z*lerch(-z,s,1.0,b,rtol=rtol,atol=atol)
+function fermi(z,s,b=0;rtol=1e-9,atol=rtol)
+    return z*lerch(-z,s,1.0,b,rtol=rtol,atol=atol)
+end 
 
 end
-
-# function bose(z,ν,y=0.;rtol=1e-6,atol=rtol)
-#     @assert 0 <= ν
-#     @assert 0 <= y
-#     (z == 1 && y == 0) && return zeta(ν)
-#     (ν == 1 && z == 0.5 ) && return log(2)
-#     k = 1
-#     Sk = s_term(z,ν,k,y)
-#     Skp1 = Sk + s_term(z,ν,k+1,y)
-#     while !isapprox(Sk,Skp1,rtol=rtol,atol=atol)
-#         k += 1
-#         Sk = Skp1
-#         Skp1 += s_term(z,ν,k+1,y)
-#     end
-#     return Sk
-# end
-# function s_term(z,s,k,y)
-#     return z^k/(k^s)*gamma_inc_Q(s,k*y)
-# end
-
-# function fermi(z,ν,y=0.;rtol=1e-6,atol=rtol)
-#     @assert 0 <= ν
-#     @assert 0 <= y
-#     # (z == 1 && y == 0) && return zeta(ν)
-#     # (ν == 1 && z == 0.5 ) && return log(2)
-#     k = 1
-#     Sk = s_term(-z,ν,k,y)
-#     Skp1 = Sk + s_term(-z,ν,k+1,y)
-#     while !isapprox(Sk,Skp1,rtol=rtol,atol=atol)
-#         k += 1
-#         Sk = Skp1
-#         Skp1 += s_term(-z,ν,k+1,y)
-#     end
-#     return -Sk
-# end
