@@ -1,6 +1,6 @@
 # BoseFermi.jl
 
-Our aim is simply to evaluate upper incomplete Bose and Fermi integrals. We provide robust accurate evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. 
+Our aim is to accurately and reliably evaluate upper incomplete Bose and Fermi integrals. We provide robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. 
 
 ## Now
 - [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent integral.
