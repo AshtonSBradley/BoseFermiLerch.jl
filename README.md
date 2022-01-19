@@ -4,11 +4,11 @@ Our aim is to accurately and reliably evaluate upper incomplete Bose and Fermi i
 
 ## Now
 - [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent integral.
-- [x] Provide reliable numerical evaluation for a wide range of arguments. This is done with adaptive quadrature, and while not particularly slow, is also not optimally fast 
+- [x] Provide reliable numerical evaluation, tested for a wide range of arguments. This is done with adaptive quadrature, and while not particularly slow, is also not optimally fast.
 
 ## Future
 
-- [ ] implement fast evaluation using Chebychev and asymptotic expansions.  
+- [ ] implement fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
 
 ## Definitions
 ### Bose-Einstein integrals
