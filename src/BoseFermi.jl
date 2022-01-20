@@ -31,9 +31,9 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function bose(z,s,b=0;rtol=1e-8) 
+function bose(z,s,b=0;rtol=1e-9) 
     @assert 0 <= s
-    @assert 0 <= y
+    @assert 0 <= b
     if z == one(z) && b == 0
         return zeta(s)
     elseif z == 0.5 && s == 1
@@ -64,9 +64,9 @@ f_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function fermi(z,s,b=0;rtol=1e-8)
+function fermi(z,s,b=0;rtol=1e-9)
     @assert 0 <= s
-    @assert 0 <= y
+    @assert 0 <= b
     return z*lerch(-z,s,1.0,b,rtol=rtol)
 end 
 

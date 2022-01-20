@@ -23,20 +23,42 @@ $$
 
 where the fugacity $z\equiv e^{\mu}$, and the lower integration is restricted to $\varepsilon>\mu$.
 
-### Incomplete Lerch transcendent
-The Bose and Fermi integrals may be defined in terms of the more general upper incomplete [Lerch transcendent](https://www.wikiwand.com/en/Lerch_zeta_function) defined here as
+## Incomplete Lerch integral
+The Bose and Fermi integrals may be defined in terms of the more general upper incomplete [Lerch integral](https://www.wikiwand.com/en/Lerch_zeta_function) defined here as
 $$
 \Phi(z,s,a,b)\equiv\frac{1}{\Gamma(s)}\int_b^\infty \frac{t^{s-1}e^{-at}}{1-ze^{-t}}dt
 $$
 While a number of asymptotic expansions are available, to provide simple and robust evaluation for a wide range of arguments, here we evaluate for $z\in \mathbb C\backslash [e^{b},\infty)$ using adaptive Gauss-Kronrod numerical quadrature provided by the [QuadGK](https://www.wikiwand.com/en/Lerch_zeta_function) package. 
 
+### Bose and Fermi
 The Bose and Fermi integrals are then evaluated via the identities:
 $$g_\nu(z,\varepsilon)=z\Phi(z,\nu,1,\varepsilon)$$
 
 $$f_\nu(z,\varepsilon)=z\Phi(-z,\nu,1,\varepsilon)$$
 
+### Special cases 
+
+#### $|z|<1$
+In this case, Lerch integral can be written as the convergent series
+
+$$ 
+\Phi(z,s,a,b)\equiv\frac{1}{\Gamma(s)}\int_b^\infty \frac{t^{s-1}e^{-at}}{1-ze^{-t}}dt=\frac{1}{\Gamma(s)}\sum_{n=0}^\infty \frac{z^n}{(a+n)^s}\Gamma(s,b(a+n))
+$$
+For $b=0$ this reduces to the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function)
+
+$$
+\Phi(z,s,a,0)=\Phi(z,s,a)\equiv\sum_{n=0}^\infty \frac{z^n}{(a+n)^s}.
+$$
+
+The Riemann zeta function is recovered for the special case $z=1,a=0$:
+
+$$
+\Phi(1,s,0,0)=\zeta(s)=\sum_{n=1}^\infty\frac{1}{n^s}.
+$$
+
 ## Examples
 ### Bose
+$$g_s(1,0)=\zeta(s)$$
 
 ### Fermi
 
