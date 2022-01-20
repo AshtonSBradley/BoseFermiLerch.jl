@@ -3,7 +3,7 @@ module BoseFermi
 import SpecialFunctions: zeta, gamma 
 using QuadGK 
 
-export bose, fermi, lerch 
+export bose, fermi, lerch
 
 lerch_int(t,z,s,a) = 1/gamma(s)t^(s-1)*exp(-a*t)/(1-z*exp(-t))
 
