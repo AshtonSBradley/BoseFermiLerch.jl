@@ -1,4 +1,4 @@
 # Lerch
 ```@docs
-lerch(x)
+lerch 
 ```

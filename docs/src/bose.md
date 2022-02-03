@@ -1,4 +1,4 @@
 # Bose
 ```@docs
-bose(x)
+bose 
 ```

@@ -11,7 +11,7 @@ lerch(z,s,a,b;rtol=1e-8) = quadgk(t->lerch_int(t,z,s,a),b,Inf,rtol=rtol)[1]
 
 
 """
-`bose(z,ν,y)`
+    bose(z,ν,y)
 
 Evaluates the incomplete Bose-Einstein function
 

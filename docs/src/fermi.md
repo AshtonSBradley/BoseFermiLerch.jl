@@ -1,4 +1,4 @@
 # Fermi
 ```@docs
-fermi(x)
+fermi 
 ```
