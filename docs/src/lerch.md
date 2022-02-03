@@ -1,0 +1,4 @@
+# Lerch
+```@docs
+lerch(x)
+```

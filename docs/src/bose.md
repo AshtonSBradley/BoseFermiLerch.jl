@@ -1,0 +1,4 @@
+# Bose
+```@docs
+bose(x)
+```

@@ -1,0 +1,4 @@
+# Fermi
+```@docs
+fermi(x)
+```

@@ -1,0 +1,3 @@
+var documenterSearchIndex = {"docs":
+[{"location":"fermi.html#Fermi","page":"Fermi","title":"Fermi","text":"","category":"section"},{"location":"fermi.html","page":"Fermi","title":"Fermi","text":"fermi(x)","category":"page"},{"location":"bose.html#Bose","page":"Bose","title":"Bose","text":"","category":"section"},{"location":"bose.html","page":"Bose","title":"Bose","text":"bose(x)","category":"page"},{"location":"lerch.html#Lerch","page":"Lerch","title":"Lerch","text":"","category":"section"},{"location":"lerch.html","page":"Lerch","title":"Lerch","text":"lerch(x)","category":"page"},{"location":"index.html#BoseFermi.jl-Documentation","page":"Overview","title":"BoseFermi.jl Documentation","text":"","category":"section"}]
+}
