@@ -1,4 +1,4 @@
-name = "BoseFermi"
+name = "BoseFermiLerch"
 uuid = "a6880d5c-510b-4d6a-acfa-e934188c78a6"
 authors = ["Ashton <ashton.bradley@gmail.com> and contributors"]
 version = "0.1.0"
