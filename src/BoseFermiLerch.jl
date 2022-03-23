@@ -1,4 +1,4 @@
-module BoseFermi
+module BoseFermiLerch
 
 import SpecialFunctions: zeta, gamma 
 using QuadGK 
