@@ -1,4 +1,4 @@
-# BoseFermi.jl
+# BoseFermiLerch.jl
 
 Our aim is to accurately and reliably evaluate upper incomplete Bose and Fermi integrals. We provide robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. 
 
