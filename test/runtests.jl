@@ -1,4 +1,4 @@
-using BoseFermi
+using BoseFermiLerch
 using SpecialFunctions
 using Test
 
