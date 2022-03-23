@@ -5,13 +5,14 @@ using QuadGK
 
 export bose, fermi, lerch
 
-lerch_int(t,z,s,a) = 1/gamma(s)t^(s-1)*exp(-a*t)/(1-z*exp(-t))
+lerch_int(t,z,s,a) = exp(-a*t)*t^(s-1)/(1-z*exp(-t))/gamma(s)
 
 lerch(z,s,a,b;rtol=1e-8) = quadgk(t->lerch_int(t,z,s,a),b,Inf,rtol=rtol)[1]
 
+# TODO: why is lerch_int undefined at lerch_int(0.0,-1.,2,1.) ??
 
 """
-`bose(z,ν,y)`
+`bose(ν,z,y)`
 
 Evaluates the incomplete Bose-Einstein function
 
@@ -31,7 +32,7 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function bose(z,s,b=0;rtol=1e-9) 
+function bose(s,z,b=0;rtol=1e-9) 
     @assert 0 <= s
     @assert 0 <= b
     if z == one(z) && b == 0
@@ -44,7 +45,7 @@ function bose(z,s,b=0;rtol=1e-9)
 end
 
 """
-`fermi(z,ν,y)`
+`fermi(ν,z,y)`
 
 Evaluates the incomplete Fermi-Dirac function
 
@@ -64,7 +65,7 @@ f_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function.
 """
-function fermi(z,s,b=0;rtol=1e-9)
+function fermi(s,z,b=0;rtol=1e-9)
     @assert 0 <= s
     @assert 0 <= b
     return z*lerch(-z,s,1.0,b,rtol=rtol)

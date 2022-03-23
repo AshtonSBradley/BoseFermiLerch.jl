@@ -15,23 +15,23 @@ z,s,a,b =.5,1,1.,0.
 lerch(z,s,a,b,rtol=1e-9)
 @btime lerch(z,s,a,b,rtol=1e-9)
 
-bose(z,s,b,rtol=1e-9)
+bose(s,z,b,rtol=1e-9)
 z*lerch(z,s,a,b,rtol=1e-9)
 
-@btime bose(z,s,b,rtol=1e-9)
+@btime bose(s,z,b,rtol=1e-9)
 @btime z*lerch(z,s,a,b,rtol=1e-9)
 
 # fermi
-@btime fermi(z,s,b,rtol=1e-9)
+@btime fermi(s,z,b,rtol=1e-9)
 @btime z*lerch(-z,s,a,b,rtol=1e-9)
 
 z,s,a,b =0.5,1.0,1.,0.
 z*lerch(z,s,a,b)
-bose(z,s,b)
+bose(s,z,b)
 
 z,s,a,b = 1.0,2.0,1.,0.
 @btime z*lerch(z,s,a,b)
-@btime bose(z,s,b)
+@btime bose(s,z,b)
 
 ## simple timing
 using Plots, LaTeXStrings
@@ -39,23 +39,23 @@ using SpecialFunctions
 using HCubature
 using Roots
 
-    @btime bose(1,3/2,0.)
+    @btime bose(3/2,1,0.)
     @btime zeta(3/2)
-    @btime bose(.5,3,.5)
+    @btime bose(3,.5,.5)
     exp(.5)
     zeta(3)
-    bose(.99,0.1,.1)
+    bose(0.1,.99,.1)
 
     # note only getting 5 digits for log(2)
-    @test bose(1,3)==bose(1,3,0)
-    @test bose(1,5)==zeta(5)
-    @test bose(.5,1)≈log(2)
+    @test bose(3,1)==bose(3,1,0)
+    @test bose(5,1)==zeta(5)
+    @test bose(1,.5)≈log(2)
 
     μ = 12. # in oscillator units
     β = 1/(6μ) #temp in units of μ
     ecut = 3*μ
 
-    @btime bose(exp(β*μ),3/2,β*ecut)
+    @btime bose(3/2,exp(β*μ),β*ecut)
 
     exp(β*μ),exp(.1)
     V0(x,y,z) = .5*x^2 + .5*y^2 + .5*z^2
@@ -103,10 +103,10 @@ using Roots
     x = LinRange(xi,xf,Nx) |> Vector
 
     #slice along x for I-region density
-    plot(x,bose.(exp.(β*(μ.-V.(x,0.,0.))),3/2),label="no cutoff")
-    plot!(x,bose.(exp.(β*(μ.-V.(x,0.,0.))),3/2,β*ecut),label=L"\epsilon_{cut}\textrm{ (wrong cutoff)}")
-    plot!(x,bose.(exp.(β*(μ.-V.(x,0.,0.))),3/2,β*Kc.(x,0.,0.).^2/2),label=L"\hbar^2K_{cut}(\mathbf{r})^2/2m",ylabel=L"n(\mathbf{r})\lambda_{dB}^3",xlabel=L"r",title="Reservoir particle density")
-    #plot(x,bose.(3/2,exp.(β*(μ-Veff.(x,0.,0.,μ)))),label="Hartree-Fock")
+    plot(x,bose.(3/2,exp.(β*(μ.-V.(x,0.,0.)))),label="no cutoff")
+    plot!(x,bose.(3/2,exp.(β*(μ.-V.(x,0.,0.))),β*ecut),label=L"\epsilon_{cut}\textrm{ (wrong cutoff)}")
+    plot!(x,bose.(3/2,exp.(β*(μ.-V.(x,0.,0.))),β*Kc.(x,0.,0.).^2/2),label=L"\hbar^2K_{cut}(\mathbf{r})^2/2m",ylabel=L"n(\mathbf{r})\lambda_{dB}^3",xlabel=L"r",title="Reservoir particle density")
+    #plot(x,bose.(exp.(β*(μ-Veff.(x,0.,0.,μ))),3/2),label="Hartree-Fock")
     # annotate(L"g_{3/2}(e^{\beta(\mu-V(\mathbf{r}))})",[1.4,2.3])
     # annotate(L"g_{3/2}(e^{\beta(\mu-V(\mathbf{r}))},\frac{\beta \hbar^2}{2m}K_{cut}(\mathbf{r})^2)",[.5,1.4])
     # annotate(L"g_{3/2}(e^{\beta(\mu-V(\mathbf{r}))},\beta \epsilon_{cut})",[.7,.7])
@@ -119,7 +119,7 @@ using Roots
 ## finite domain test
     xmin = (-20.,-20.,-20.)
     xmax = (20.,20.,20.)
-    nth(x,μ) = bose(exp(β*(μ-Veff(x...,μ))),3/2,β*Kc.(x...).^2/2)
+    nth(x,μ) = bose(3/2,exp(β*(μ-Veff(x...,μ))),β*Kc.(x...).^2/2)
     numeric,err = hcubature(x->nth(x,μ), xmin, xmax,rtol=1e-3)
 
     Nth(μ) = hcubature(x->nth(x,μ), xmin, xmax,rtol=1e-3)[1]
