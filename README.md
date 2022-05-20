@@ -1,14 +1,14 @@
 # BoseFermiLerch.jl
 
-Our aim is to accurately and reliably evaluate upper incomplete Bose and Fermi integrals. We provide robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. 
+Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. Based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension.
 
 ## Now
-- [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent integral.
-- [x] Provide reliable numerical evaluation, tested for a wide range of arguments. This is done with adaptive quadrature, and while not particularly slow, is also not optimally fast.
+- [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent.
+- [x] Reliable numerical evaluation, tested for a wide range of arguments, using adaptive quadrature.
 
 ## Future
 
-- [ ] implement fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
+- [ ] fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
 
 ## Definitions
 ### Bose-Einstein integrals
@@ -25,9 +25,11 @@ where the fugacity $z\equiv e^{\mu}$, and the lower integration is restricted to
 
 ## Incomplete Lerch integral
 The Bose and Fermi integrals may be defined in terms of the more general upper incomplete [Lerch integral](https://www.wikiwand.com/en/Lerch_zeta_function) defined here as
+
 $$
 \Phi(z,s,a,b)\equiv\frac{1}{\Gamma(s)}\int_b^\infty \frac{t^{s-1}e^{-at}}{1-ze^{-t}}dt
 $$
+
 While a number of asymptotic expansions are available, to provide simple and robust evaluation for a wide range of arguments, here we evaluate for $z\in \mathbb C\backslash [e^{b},\infty)$ using adaptive Gauss-Kronrod numerical quadrature provided by the [QuadGK](https://www.wikiwand.com/en/Lerch_zeta_function) package. 
 
 ### Bose and Fermi
@@ -38,7 +40,7 @@ $$f_\nu(z,\varepsilon)=z\Phi(-z,\nu,1,\varepsilon)$$
 
 ### Special cases 
 
-#### $|z|<1$
+#### |z|<1
 In this case, Lerch integral can be written as the convergent series
 
 $$ 
