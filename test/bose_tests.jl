@@ -1,7 +1,13 @@
+using Test
+using SpecialFunctions
 
-@test bose(3,1) == bose(3,1,0)
-@test bose(5,1) == zeta(5)
-@test bose(1,.5) ≈ log(2)
+@test bose(3, 1) == bose(3, 1, 0)
+@test bose(5, 1) == zeta(5)
+@test bose(1, 0.5) ≈ log(2)
+@test bose(2, 0.5, 0.3) ≈ 0.5 * lerch(0.5, 2, 1, 0.3)
+@test bose(2, 0, 0.3) == 0
+@test_throws DomainError bose(0, 0.5)
+@test_throws DomainError bose(2, 2.0, 0.5)
 
 #TODO: tidy these
 # ## Lerchphi test 

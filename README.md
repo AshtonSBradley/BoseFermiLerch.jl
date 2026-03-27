@@ -1,10 +1,10 @@
 # BoseFermiLerch.jl
 
-Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases. Based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension.
+Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension.
 
 ## Now
 - [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent.
-- [x] Reliable numerical evaluation, tested for a wide range of arguments, using adaptive quadrature.
+- [x] Reliable numerical evaluation using a convergent series for `|z| < 1` and adaptive quadrature elsewhere.
 
 ## Future
 
@@ -30,7 +30,7 @@ $$
 \Phi(z,s,a,b)\equiv\frac{1}{\Gamma(s)}\int_b^\infty \frac{t^{s-1}e^{-at}}{1-ze^{-t}}dt
 $$
 
-While a number of asymptotic expansions are available, to provide simple and robust evaluation for a wide range of arguments, here we evaluate for $z\in \mathbb C\backslash [e^{b},\infty)$ using adaptive Gauss-Kronrod numerical quadrature provided by the [QuadGK](https://www.wikiwand.com/en/Lerch_zeta_function) package. 
+While a number of asymptotic expansions are available, to provide simple and robust evaluation for a wide range of arguments, this package evaluates for $z\in \mathbb C\backslash [e^{b},\infty)$. For $|z|<1$ it uses the convergent series below; otherwise it uses adaptive Gauss-Kronrod numerical quadrature from [QuadGK](https://juliamath.github.io/QuadGK.jl/stable/).
 
 ### Bose and Fermi
 The Bose and Fermi integrals are then evaluated via the identities:
@@ -66,11 +66,21 @@ $$
 
 ### Fermi function 
 $$
-f_s(z)=f_s(z,0)=z\Phi(-z,s,1,0)=\sum_{n=1}\frac{(-1)^nz^n}{n^s}
+f_s(z)=f_s(z,0)=z\Phi(-z,s,1,0)=\sum_{n=1}^\infty\frac{(-1)^{n-1}z^n}{n^s}=-\operatorname{Li}_s(-z)
 $$
 
-### Riemann zeta
+### Special values
 
 $$
 \zeta(s)=g_s(1)=\Phi(1,s,1,0)=\sum_{n=1}^\infty\frac{1}{n^s}.
 $$
+
+$$
+f_s(1)=\eta(s)=(1-2^{1-s})\zeta(s).
+$$
+
+## Domain notes
+
+- `bose(s, z, b)` and `fermi(s, z, b)` require `s > 0` and `b >= 0`.
+- `lerch(z, s, a, b)` evaluates the principal branch away from the real branch cut `z in [exp(b), Inf)`.
+- `fermi(s, z, b)` inherits that restriction through `-z`, so it excludes real `z <= -exp(b)`.
