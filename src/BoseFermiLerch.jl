@@ -21,6 +21,10 @@ function check_branch_cut(z, b)
     end
 end
 
+function check_shift(a)
+    real(a) > zero(real(a)) || throw(DomainError(a, "shift a must have positive real part"))
+end
+
 function lerch_series(z, s, a, b; rtol = 1e-9, maxiter = 100_000)
     gamma_s = gamma(s)
     total = zero(promote_type(typeof(z), typeof(s), typeof(a), typeof(b)))
@@ -51,7 +55,8 @@ Evaluate the upper incomplete Lerch transcendent
 \\Phi(z,s,a,b)=\\frac{1}{\\Gamma(s)}\\int_b^\\infty \\frac{t^{s-1}e^{-at}}{1-ze^{-t}}\\,dt.
 ```
 
-For `abs(z) < 1`, the implementation uses the convergent series
+For `abs(z) < 1`, the implementation uses the convergent series when it is expected
+to converge efficiently and otherwise falls back to adaptive quadrature.
 
 ```math
 \\Phi(z,s,a,b)=\\frac{1}{\\Gamma(s)}\\sum_{n=0}^\\infty \\frac{z^n}{(a+n)^s}\\Gamma(s, b(a+n)).
@@ -63,6 +68,7 @@ supports the principal branch away from the real branch cut `z in [exp(b), Inf)`
 function lerch(z, s, a, b; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
+    check_shift(a)
 
     if z == one(z) && b == 0
         return zeta(s, a)
@@ -70,7 +76,9 @@ function lerch(z, s, a, b; rtol = 1e-8)
 
     check_branch_cut(z, b)
 
-    if abs(z) < 1
+    # The power series becomes impractically slow as |z| -> 1 when b == 0,
+    # so keep it for the well-damped regime and rely on quadrature otherwise.
+    if abs(z) < 1 && (b > 0 || abs(z) <= 0.9)
         return lerch_series(z, s, a, b; rtol = rtol)
     end
 
@@ -99,7 +107,7 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 This implementation supports the principal branch away from the real branch cut
 `z in [exp(y), Inf)` and requires `ν > 0`, `y >= 0`.
 """
-function bose(s, z, b = 0; rtol = 1e-9)
+function bose(s, z, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     if z == one(z) && b == 0
@@ -133,7 +141,7 @@ f_\\nu(1,0)=\\eta(\\nu)=(1-2^{1-\\nu})\\zeta(\\nu).
 This implementation supports the principal branch away from the real branch cut
 `-z in [exp(y), Inf)` and requires `ν > 0`, `y >= 0`.
 """
-function fermi(s, z, b = 0; rtol = 1e-9)
+function fermi(s, z, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     return z * lerch(-z, s, 1.0, b; rtol = rtol)
