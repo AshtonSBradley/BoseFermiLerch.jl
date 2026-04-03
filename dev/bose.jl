@@ -1,7 +1,7 @@
 gamma_inc_Q(p,x)=gamma_inc(p,x,0)[2]
 
 """
-`bose(ν,z,y)`
+`bose(z, ν, y)`
 
 Evaluates the incomplete Bose-Einstein function
 
@@ -21,7 +21,7 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 ```
 This implementation requires the normalized incomplete gamma function provided by `GSL.jl`.
 """
-function bose(ν,z,y=0.,rtol=1e-6,atol=rtol)
+function bose(z, ν, y=0.,rtol=1e-6,atol=rtol)
     @assert 0 <= ν
     @assert 0 <= y
     (z == 1 && y == 0) && return zeta(ν)

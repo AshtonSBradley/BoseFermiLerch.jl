@@ -81,6 +81,26 @@ $$
 
 ## Domain notes
 
-- `bose(s, z, b)` and `fermi(s, z, b)` require `s > 0` and `b >= 0`.
+- `bose(z, s, b)` and `fermi(z, s, b)` require `s > 0` and `b >= 0`.
 - `lerch(z, s, a, b)` evaluates the principal branch away from the real branch cut `z in [exp(b), Inf)`.
-- `fermi(s, z, b)` inherits that restriction through `-z`, so it excludes real `z <= -exp(b)`.
+- `fermi(z, s, b)` inherits that restriction through `-z`, so it excludes real `z <= -exp(b)`.
+
+## Example
+
+An example plot of `bose(z, 3/2)` for `z in [0, 1)` is included in
+`examples/plot_bose_3half.jl`.
+
+One way to run it is:
+
+```julia
+import Pkg
+Pkg.activate(temp=true)
+Pkg.add(["BoseFermiLerch", "CairoMakie"])
+include("examples/plot_bose_3half.jl")
+```
+
+The script writes `examples/bose_3half.png`.
+
+A larger example reproducing the three-panel quantum ideal gas comparison figure is
+included in `examples/quantum_ideal_gas_figure.jl`. It writes
+`examples/quantum_ideal_gas_figure.png`.

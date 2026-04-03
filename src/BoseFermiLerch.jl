@@ -1,6 +1,6 @@
 module BoseFermiLerch
 
-import SpecialFunctions: zeta, gamma
+import SpecialFunctions: zeta, gamma, loggamma
 using QuadGK
 
 export bose, fermi, lerch
@@ -25,6 +25,10 @@ function check_shift(a)
     real(a) > zero(real(a)) || throw(DomainError(a, "shift a must have positive real part"))
 end
 
+function is_valid_incomplete_real_cut_point(z, b)
+    return isreal(z) && one(real(z)) < real(z) < exp(b)
+end
+
 function lerch_series(z, s, a, b; rtol = 1e-9, maxiter = 100_000)
     gamma_s = gamma(s)
     total = zero(promote_type(typeof(z), typeof(s), typeof(a), typeof(b)))
@@ -46,6 +50,81 @@ function lerch_series(z, s, a, b; rtol = 1e-9, maxiter = 100_000)
     throw(ArgumentError("Lerch series failed to converge within $maxiter terms"))
 end
 
+function lerch_complete_contour(z, s, a; rtol = 1e-8)
+    if isreal(z) && real(z) > 1
+        throw(DomainError(z, "complete Lerch principal branch is undefined on the real interval (1, Inf)"))
+    end
+
+    if z == one(z)
+        return zeta(s, a)
+    end
+
+    if real(a) < 2
+        return z * lerch_complete_contour(z, s, a + 1; rtol = rtol) + a^(-s)
+    end
+
+    g(t) = t^(s - 1) * exp(-a * t) / (1 - z * exp(-t))
+    h(t) = (-t)^(s - 1) * exp(-a * t) / (1 - z * exp(-t))
+    L = log(complex(z))
+
+    if isinteger(s) && real(s) >= 1
+        if abs(imag(L)) < 0.25 && real(L) >= 0
+            if imag(z) <= 0
+                I = quadgk(g, 0.0, 1im, 1im + abs(L) + 1, abs(L) + 1, Inf; rtol = rtol)[1]
+            else
+                I = quadgk(g, 0.0, -1im, -1im + abs(L) + 1, abs(L) + 1, Inf; rtol = rtol)[1]
+            end
+        else
+            I = quadgk(g, 0.0, Inf; rtol = rtol)[1]
+        end
+        return exp(-loggamma(s)) * I
+    end
+
+    if real(L) < -0.5
+        residue = 0.0
+        c = min(abs(real(L)) / 2, 1.0)
+        left = right = top = c
+    elseif abs(imag(L)) > 0.5
+        residue = 0.0
+        c = min(abs(imag(L)) / 2, 1.0)
+        left = right = top = c
+    else
+        residue = (-L)^s / (L * z^a)
+        left = max(0.0, -real(L)) + 1
+        top = abs(imag(L)) + 1
+        right = abs(L) + 1
+    end
+
+    is_real_case = isreal(z) && real(z) < 1 && isreal(s) && isreal(a) && real(a) > 0
+    w = Complex(-1.0)^(s - 1)
+    I = 0.0 + 0.0im
+
+    if is_real_case
+        I += 2im * imag(quadgk(g, right, right + top * im; rtol = rtol)[1] / w)
+        I += 2im * imag(quadgk(g, right + top * im, -left + top * im; rtol = rtol)[1] / w)
+        I += 2im * imag(quadgk(h, -left + top * im, -left; rtol = rtol)[1])
+        I += quadgk(g, right, Inf; rtol = rtol)[1] * (w - inv(w))
+    else
+        I += quadgk(g, right, right + top * im; rtol = rtol)[1] / w
+        I += quadgk(g, right + top * im, -left + top * im; rtol = rtol)[1] / w
+        I += quadgk(h, -left + top * im, -left - top * im; rtol = rtol)[1]
+        I += quadgk(g, -left - top * im, right - top * im; rtol = rtol)[1] * w
+        I += quadgk(g, right - top * im, right; rtol = rtol)[1] * w
+        I += quadgk(g, right, Inf; rtol = rtol)[1] * (w - inv(w))
+    end
+
+    I = -gamma(1 - s) * (I / (2pi * im) + residue)
+    return is_real_case ? real(I) : I
+end
+
+function lerch_lower_correction(z, s, a, b; rtol = 1e-8)
+    return quadgk(t -> lerch_int(t, z, s, a), zero(b), b; rtol = rtol)[1]
+end
+
+function lerch_complete_real_integral(z, s, a; rtol = 1e-8)
+    return quadgk(t -> lerch_int(t, z, s, a), zero(real(a)), Inf; rtol = rtol)[1]
+end
+
 """
     lerch(z, s, a, b; rtol=1e-8)
 
@@ -55,38 +134,47 @@ Evaluate the upper incomplete Lerch transcendent
 \\Phi(z,s,a,b)=\\frac{1}{\\Gamma(s)}\\int_b^\\infty \\frac{t^{s-1}e^{-at}}{1-ze^{-t}}\\,dt.
 ```
 
-For `abs(z) < 1`, the implementation uses the convergent series when it is expected
-to converge efficiently and otherwise falls back to adaptive quadrature.
-
-```math
-\\Phi(z,s,a,b)=\\frac{1}{\\Gamma(s)}\\sum_{n=0}^\\infty \\frac{z^n}{(a+n)^s}\\Gamma(s, b(a+n)).
-```
-
-Otherwise it falls back to adaptive Gauss-Kronrod quadrature. This implementation
-supports the principal branch away from the real branch cut `z in [exp(b), Inf)`.
+The implementation uses a contour-integral backend for the complete case `b = 0`.
+For `b > 0`, it evaluates the incomplete function as the complete value minus the
+finite-interval correction on `[0, b]`, except for the narrow real interval
+`1 < z < exp(b)` where the incomplete integral is valid but the complete principal
+branch sits on its cut, so the upper integral is evaluated directly.
 """
 function lerch(z, s, a, b; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     check_shift(a)
 
-    if z == one(z) && b == 0
-        return zeta(s, a)
+    if b == 0
+        # On the real interval (-Inf, 1), the direct integral is regular and avoids
+        # the severe cancellation that can appear in the contour formula for large
+        # negative z, which directly affects high-fugacity Fermi evaluations.
+        if isreal(z) && real(z) < 1
+            return lerch_complete_real_integral(z, s, a; rtol = rtol)
+        end
+        return lerch_complete_contour(z, s, a; rtol = rtol)
     end
 
     check_branch_cut(z, b)
 
-    # The power series becomes impractically slow as |z| -> 1 when b == 0,
-    # so keep it for the well-damped regime and rely on quadrature otherwise.
-    if abs(z) < 1 && (b > 0 || abs(z) <= 0.9)
+    # At z = 1 the complete-minus-lower decomposition inherits the complete-case
+    # endpoint singularity at t = 0, while the incomplete series is exponentially
+    # convergent for b > 0.
+    if z == one(z)
         return lerch_series(z, s, a, b; rtol = rtol)
     end
 
-    return quadgk(t -> lerch_int(t, z, s, a), b, Inf; rtol = rtol)[1]
+    # For real 1 < z < exp(b), the incomplete integral is regular because the pole
+    # sits below the lower limit, but the complete principal branch is on its cut.
+    if is_valid_incomplete_real_cut_point(z, b)
+        return quadgk(t -> lerch_int(t, z, s, a), b, Inf; rtol = rtol)[1]
+    end
+
+    return lerch_complete_contour(z, s, a; rtol = rtol) - lerch_lower_correction(z, s, a, b; rtol = rtol)
 end
 
 """
-`bose(ν,z,y)`
+`bose(z, ν, y)`
 
 Evaluates the incomplete Bose-Einstein function
 
@@ -107,7 +195,7 @@ g_\\nu(1,0)=\\zeta(\\nu)=\\sum_{k=1}^\\infty \\frac{1}{k^\\nu}.
 This implementation supports the principal branch away from the real branch cut
 `z in [exp(y), Inf)` and requires `ν > 0`, `y >= 0`.
 """
-function bose(s, z, b = 0; rtol = 1e-8)
+function bose(z, s, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     if z == one(z) && b == 0
@@ -120,7 +208,7 @@ function bose(s, z, b = 0; rtol = 1e-8)
 end
 
 """
-`fermi(ν,z,y)`
+`fermi(z, ν, y)`
 
 Evaluates the incomplete Fermi-Dirac function
 
@@ -141,7 +229,7 @@ f_\\nu(1,0)=\\eta(\\nu)=(1-2^{1-\\nu})\\zeta(\\nu).
 This implementation supports the principal branch away from the real branch cut
 `-z in [exp(y), Inf)` and requires `ν > 0`, `y >= 0`.
 """
-function fermi(s, z, b = 0; rtol = 1e-8)
+function fermi(z, s, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     return z * lerch(-z, s, 1.0, b; rtol = rtol)
