@@ -10,6 +10,20 @@ Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of
 
 - [ ] fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
 
+## Evaluation strategy
+
+This package aims for a robust default evaluation strategy across both real and
+complex arguments. For the complete Lerch transcendent (`b = 0`), it uses a
+contour-integral approach in the spirit of
+[Computing the Lerch transcendent](https://fredrikj.net/blog/2022/02/computing-the-lerch-transcendent/).
+For the upper incomplete case (`b > 0`), it combines the complete evaluation
+with a tail correction computed by adaptive quadrature.
+
+In practice, this gives a good tradeoff between speed and reliable evaluation,
+especially near difficult regions such as branch cuts, large fugacity, and
+complex arguments. It should also serve as a strong fallback baseline for future
+optimisation strategies.
+
 ## Definitions
 ### Bose-Einstein integrals
 $$
