@@ -10,6 +10,20 @@ Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of
 
 - [ ] fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
 
+## Evaluation strategy
+
+This package aims for a robust default evaluation strategy across both real and
+complex arguments. For the complete Lerch transcendent (`b = 0`), it uses a
+contour-integral approach in the spirit of
+[Computing the Lerch transcendent](https://fredrikj.net/blog/2022/02/computing-the-lerch-transcendent/).
+For the upper incomplete case (`b > 0`), it combines the complete evaluation
+with a tail correction computed by adaptive quadrature.
+
+In practice, this gives a good tradeoff between speed and reliable evaluation,
+especially near difficult regions such as branch cuts, large fugacity, and
+complex arguments. It should also serve as a strong fallback baseline for future
+optimisation strategies.
+
 ## Definitions
 ### Bose-Einstein integrals
 $$
@@ -81,6 +95,26 @@ $$
 
 ## Domain notes
 
-- `bose(s, z, b)` and `fermi(s, z, b)` require `s > 0` and `b >= 0`.
+- `bose(z, s, b)` and `fermi(z, s, b)` require `s > 0` and `b >= 0`.
 - `lerch(z, s, a, b)` evaluates the principal branch away from the real branch cut `z in [exp(b), Inf)`.
-- `fermi(s, z, b)` inherits that restriction through `-z`, so it excludes real `z <= -exp(b)`.
+- `fermi(z, s, b)` inherits that restriction through `-z`, so it excludes real `z <= -exp(b)`.
+
+## Example
+
+An example plot of `bose(z, 3/2)` for `z in [0, 1)` is included in
+`examples/plot_bose_3half.jl`.
+
+One way to run it is:
+
+```julia
+import Pkg
+Pkg.activate(temp=true)
+Pkg.add(["BoseFermiLerch", "CairoMakie"])
+include("examples/plot_bose_3half.jl")
+```
+
+The script writes `examples/bose_3half.png`.
+
+A larger example reproducing the three-panel quantum ideal gas comparison figure is
+included in `examples/quantum_ideal_gas_figure.jl`. It writes
+`examples/quantum_ideal_gas_figure.png`.
