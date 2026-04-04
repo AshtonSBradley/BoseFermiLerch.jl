@@ -13,3 +13,4 @@ using SpecialFunctions
 @test_throws DomainError lerch(3.0, 2, 1, 0.5)
 @test_throws DomainError lerch(0.5, 2, 0.0, 0.1)
 @test_throws DomainError lerch(0.5, 2, -1.0, 0.1)
+@test_throws ArgumentError lerch(0.5, 2, 1, 0.1; rtol = 0)

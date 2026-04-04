@@ -1,8 +1,11 @@
 # BoseFermiLerch.jl
 
+[![Coverage](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl)
+[![Code Quality](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml/badge.svg)](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml)
+
 Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension. 
 
-![](/examples/quantum_ideal_gas_figure.png)
+![](examples/quantum_ideal_gas_figure.png)
 
 ## Evaluation strategy
 
@@ -124,7 +127,7 @@ include("examples/plot_bose_3half.jl")
 
 The script writes `examples/bose_3half.png`.
 
-![](/examples/bose_3half.png)
+![](examples/bose_3half.png)
 A larger example reproducing the three-panel quantum ideal gas comparison figure is
 included in `examples/quantum_ideal_gas_figure.jl`. It writes
 `examples/quantum_ideal_gas_figure.png`.

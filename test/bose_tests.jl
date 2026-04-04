@@ -4,11 +4,14 @@ using SpecialFunctions
 @test bose(1, 3) == bose(1, 3, 0)
 @test bose(1, 5) == zeta(5)
 @test bose(0.5, 1) ≈ log(2)
+@test bose(0.999999999, 1) ≈ -log1p(-0.999999999)
+@test bose(0.3 + 0.2im, 1) ≈ -log1p(-(0.3 + 0.2im))
 @test bose(0.5, 2, 0.3) ≈ 0.5 * lerch(0.5, 2, 1, 0.3)
 @test bose(0.999999, 2, 0.0) ≈ 0.999999 * lerch(0.999999, 2, 1, 0.0)
 @test bose(0, 2, 0.3) == 0
 @test_throws DomainError bose(0.5, 0)
 @test_throws DomainError bose(2.0, 2, 0.5)
+@test_throws ArgumentError bose(0.5, 2; rtol = 0)
 
 #TODO: tidy these
 # ## Lerchphi test 

@@ -25,6 +25,10 @@ function check_shift(a)
     real(a) > zero(real(a)) || throw(DomainError(a, "shift a must have positive real part"))
 end
 
+function check_rtol(rtol)
+    rtol > zero(rtol) || throw(ArgumentError("rtol must be positive"))
+end
+
 function is_valid_incomplete_real_cut_point(z, b)
     return isreal(z) && one(real(z)) < real(z) < exp(b)
 end
@@ -163,6 +167,7 @@ function lerch(z, s, a, b; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
     check_shift(a)
+    check_rtol(rtol)
 
     if b == 0
         if should_use_series(z, s)
@@ -225,10 +230,11 @@ This implementation supports the principal branch away from the real branch cut
 function bose(z, s, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
+    check_rtol(rtol)
     if z == one(z) && b == 0
         return zeta(s)
-    elseif z == 0.5 && s == 1 && b == 0
-        return log(2)
+    elseif s == one(s) && b == zero(b)
+        return -log1p(-z)
     else
         return z * lerch(z, s, 1.0, b; rtol = rtol)
     end
@@ -259,6 +265,10 @@ This implementation supports the principal branch away from the real branch cut
 function fermi(z, s, b = 0; rtol = 1e-8)
     check_order(s)
     check_lower_limit(b)
+    check_rtol(rtol)
+    if s == one(s) && b == zero(b)
+        return log1p(z)
+    end
     return z * lerch(-z, s, 1.0, b; rtol = rtol)
 end
 
