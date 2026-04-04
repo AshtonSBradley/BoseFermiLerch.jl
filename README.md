@@ -124,6 +124,8 @@ include("examples/plot_bose_3half.jl")
 
 The script writes `examples/bose_3half.png`.
 
+![](/examples/bose_3half.png)
+
 A larger example reproducing the three-panel quantum ideal gas comparison figure is
 included in `examples/quantum_ideal_gas_figure.jl`. It writes
 `examples/quantum_ideal_gas_figure.png`.
