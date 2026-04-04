@@ -1,14 +1,8 @@
 # BoseFermiLerch.jl
 
-Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension.
+Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension. 
 
-## Now
-- [x] Give definitions for upper incomplete Bose and Fermi integrals, and upper incomplete Lerch transcendent.
-- [x] Reliable numerical evaluation using a convergent series for `|z| < 1` and adaptive quadrature elsewhere.
-
-## Future
-
-- [ ] fast evaluation using Chebychev (see e.g. [GSL](https://github.com/JuliaMath/GSL.jl)) and asymptotic expansions.  
+![](/examples/quantum_ideal_gas_figure.png)
 
 ## Evaluation strategy
 
