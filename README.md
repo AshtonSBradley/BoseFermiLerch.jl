@@ -74,7 +74,7 @@ $$
 
 ### Fermi function 
 $$
-f_s(z)=f_s(z,0)=z\Phi(-z,s,1,0)=\sum_{n=1}^\infty\frac{(-1)^{n-1}z^n}{n^s}=-\operatorname{Li}_s(-z)
+f_s(z)=f_s(z,0)=z\Phi(-z,s,1,0)=\sum_{n=1}^\infty\frac{(-1)^{n-1}z^n}{n^s}=-\textrm{Li}_s(-z)
 $$
 
 ### Special values
