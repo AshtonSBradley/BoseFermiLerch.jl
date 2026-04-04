@@ -125,7 +125,6 @@ include("examples/plot_bose_3half.jl")
 The script writes `examples/bose_3half.png`.
 
 ![](/examples/bose_3half.png)
-
 A larger example reproducing the three-panel quantum ideal gas comparison figure is
 included in `examples/quantum_ideal_gas_figure.jl`. It writes
 `examples/quantum_ideal_gas_figure.png`.
@@ -138,7 +137,7 @@ A recent strict run produced the following median timings:
 | Case | Arguments `(z, s, a, b)` | Median time (ms) | Budget (ms) |
 | --- | --- | ---: | ---: |
 | `complete_well_damped` | `(0.5, 2, 1, 0)` | `0.002` | `0.400` |
-| `complete_near_one` | `(0.999999, 2, 1, 0)` | `0.009` | `1.500` |
+| `complete_near_one` | `(0.999999, 2, 1, 0)` | `0.005` | `1.500` |
 | `incomplete_small_b` | `(0.5, 2, 1, 0.05)` | `0.001` | `1.500` |
 | `incomplete_near_one_small_b` | `(0.999, 2, 1, 0.05)` | `0.002` | `1.500` |
 | `incomplete_just_above_one_small_b` | `(1.01, 2, 1, 0.05)` | `0.002` | `1.500` |
