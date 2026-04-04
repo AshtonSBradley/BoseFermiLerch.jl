@@ -29,6 +29,22 @@ function is_valid_incomplete_real_cut_point(z, b)
     return isreal(z) && one(real(z)) < real(z) < exp(b)
 end
 
+function series_cutoff(z, s)
+    if isreal(z) && real(z) >= 0
+        return isreal(s) && real(s) >= 2 ? 0.98 : 0.9
+    end
+    return 0.8
+end
+
+function should_use_series(z, s)
+    abs(z) < 1 || return false
+    return abs(z) <= series_cutoff(z, s)
+end
+
+function should_use_real_integral(z)
+    return isreal(z) && real(z) < 0
+end
+
 function lerch_series(z, s, a, b; rtol = 1e-9, maxiter = 100_000)
     gamma_s = gamma(s)
     total = zero(promote_type(typeof(z), typeof(s), typeof(a), typeof(b)))
@@ -134,11 +150,14 @@ Evaluate the upper incomplete Lerch transcendent
 \\Phi(z,s,a,b)=\\frac{1}{\\Gamma(s)}\\int_b^\\infty \\frac{t^{s-1}e^{-at}}{1-ze^{-t}}\\,dt.
 ```
 
-The implementation uses a contour-integral backend for the complete case `b = 0`.
-For `b > 0`, it evaluates the incomplete function as the complete value minus the
-finite-interval correction on `[0, b]`, except for the narrow real interval
-`1 < z < exp(b)` where the incomplete integral is valid but the complete principal
-branch sits on its cut, so the upper integral is evaluated directly.
+The implementation uses a hybrid backend: a gamma-series path where it is broadly
+valid and benchmark-favoured, a direct real-axis integral for the complete
+negative-real regime that stabilizes Fermi-Dirac evaluations at large fugacity,
+and the contour integral as a robust fallback. For `b > 0`, the incomplete
+function is evaluated as the complete value minus the finite-interval correction
+on `[0, b]`, except for the narrow real interval `1 < z < exp(b)` where the
+incomplete integral is valid but the complete principal branch sits on its cut,
+so the upper integral is evaluated directly.
 """
 function lerch(z, s, a, b; rtol = 1e-8)
     check_order(s)
@@ -146,10 +165,14 @@ function lerch(z, s, a, b; rtol = 1e-8)
     check_shift(a)
 
     if b == 0
-        # On the real interval (-Inf, 1), the direct integral is regular and avoids
+        if should_use_series(z, s)
+            return lerch_series(z, s, a, b; rtol = rtol)
+        end
+
+        # On the negative real interval, the direct integral is regular and avoids
         # the severe cancellation that can appear in the contour formula for large
         # negative z, which directly affects high-fugacity Fermi evaluations.
-        if isreal(z) && real(z) < 1
+        if should_use_real_integral(z)
             return lerch_complete_real_integral(z, s, a; rtol = rtol)
         end
         return lerch_complete_contour(z, s, a; rtol = rtol)
@@ -161,6 +184,10 @@ function lerch(z, s, a, b; rtol = 1e-8)
     # endpoint singularity at t = 0, while the incomplete series is exponentially
     # convergent for b > 0.
     if z == one(z)
+        return lerch_series(z, s, a, b; rtol = rtol)
+    end
+
+    if should_use_series(z, s)
         return lerch_series(z, s, a, b; rtol = rtol)
     end
 
