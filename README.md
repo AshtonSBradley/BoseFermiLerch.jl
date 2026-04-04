@@ -1,5 +1,7 @@
 # BoseFermiLerch.jl
 
+[![CI](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/CI.yml)
+[![TagBot](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/TagBot.yml/badge.svg)](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/TagBot.yml)
 [![Coverage](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl)
 [![Code Quality](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml/badge.svg)](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml)
 
