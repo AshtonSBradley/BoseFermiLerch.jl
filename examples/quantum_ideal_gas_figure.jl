@@ -28,15 +28,32 @@ Pf_curve = [Pf_curve; Pf]
 Sf_curve = [Sf_curve; 0.0]
 muf_curve = [muf_curve; [Tf]]
 
+fermi_order = sortperm(Tf_curve)
+Tf_sorted = Tf_curve[fermi_order]
+muf_sorted = muf_curve[fermi_order]
+
+function interp_linear(x, xs, ys)
+    idx = searchsortedfirst(xs, x)
+    if idx <= 1
+        return ys[1]
+    elseif idx > length(xs)
+        return ys[end]
+    end
+    x1, x2 = xs[idx - 1], xs[idx]
+    y1, y2 = ys[idx - 1], ys[idx]
+    return y1 + (x - x1) * (y2 - y1) / (x2 - x1)
+end
+
+mu_at_Tf = interp_linear(Tf, Tf_sorted, muf_sorted)
+
 fig = Figure(size = (960, 340), linewidth = 2)
 ax1 = Axis(fig[1, 1])
 ax2 = Axis(fig[1, 2])
 ax3 = Axis(fig[1, 3])
 
 lines!(ax1, Tf_curve, muf_curve; label = "Fermi gas", color = fcol, linewidth = 3)
-text!(ax1, 0.05, 1.25; text = L"\epsilon_F")
-scatter!(ax1, [Tf], [0.0]; marker = :circle, color = fcol, markersize = 12)
-text!(ax1, Tf + 0.05, 0.0; text = L"T_F")
+scatter!(ax1, [Tf], [mu_at_Tf]; marker = :circle, color = fcol, markersize = 12)
+text!(ax1, Tf + 0.05, mu_at_Tf; text = L"T_F")
 
 lines!(ax2, Tf_curve, Sf_curve; label = "Fermi gas", color = fcol, linewidth = 3)
 lines!(ax3, Tf_curve, Pf_curve; label = "Fermi gas", color = fcol, linewidth = 3)
