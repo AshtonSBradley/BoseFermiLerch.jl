@@ -92,6 +92,11 @@ $$
 g_s(z)=g_s(z,0)=z\Phi(z,s,1,0)=\sum_{n=1}\frac{z^n}{n^s}
 $$
 
+### Incomplete Fermi function
+$$
+f_s(z,b)=z\Phi(-z,s,1,b)=\frac{1}{\Gamma(s)}\sum_{n=1}^\infty\frac{(-1)^{n-1}z^n}{n^s}\Gamma(s,bn)
+$$
+
 ### Fermi function 
 $$
 f_s(z)=f_s(z,0)=z\Phi(-z,s,1,0)=\sum_{n=1}^\infty\frac{(-1)^{n-1}z^n}{n^s}=-\textrm{Li}_s(-z)
