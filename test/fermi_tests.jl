@@ -10,6 +10,7 @@ end
 
 @test fermi(1, 1) ≈ log(2)
 @test fermi(1, 2) ≈ pi^2 / 12
+@test fermi(-0.999999999999, 1) ≈ log1p(-0.999999999999)
 @test fermi(0.999999999, 1) ≈ log1p(0.999999999)
 @test fermi(0.3 + 0.2im, 1) ≈ log1p(0.3 + 0.2im)
 @test fermi(0.5, 2, 0.3) ≈ 0.5 * lerch(-0.5, 2, 1, 0.3)
@@ -18,6 +19,7 @@ end
 @test_throws DomainError fermi(1, 0)
 @test_throws DomainError fermi(-2.0, 2, 0.5)
 @test_throws ArgumentError fermi(0.5, 2; rtol = 0)
+@test_throws ArgumentError fermi(0.5, 2; rtol = -1e-8)
 
 fd_ref(s, z; rtol = 1e-8) = z * quadgk(t -> exp(-t) * t^(s - 1) / ((1 + z * exp(-t)) * gamma(s)), 0.0, Inf; rtol = rtol)[1]
 

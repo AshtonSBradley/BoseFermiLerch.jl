@@ -39,7 +39,10 @@ jobs:
         if: matrix.julia-version == '1.11'
 
       - name: Upload coverage reports to Codecov
+        if: matrix.julia-version == '1.11'
         uses: codecov/codecov-action@v5
         with:
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: AshtonSBradley/BoseFermiLerch.jl
+          fail_ci_if_error: false
