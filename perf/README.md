@@ -46,3 +46,12 @@ This script probes:
 - the real window `1 < z < exp(b)`
 - representative complex complete and incomplete cases
 - direct series-vs-contour timing comparisons for the complete case near `z = 1`
+
+## Near-z=1 asymptotic benchmark
+
+To compare the new complete Bose/Lerch near-`z = 1` asymptotic patch against
+the previous contour fallback and a high-precision reference:
+
+```bash
+julia --project=perf -e 'include("perf/benchmark_asymptotics.jl")'
+```

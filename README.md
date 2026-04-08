@@ -14,15 +14,16 @@ Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of
 This package aims for a robust default evaluation strategy across both real and
 complex arguments. For the complete Lerch transcendent (`b = 0`), it uses a
 hybrid map: the convergent gamma-series in the easy `|z| < 1` regime where it
-is broadly valid and typically cheapest, a direct real-axis integral on the
-negative real line to stabilize large-fugacity Fermi-Dirac evaluations, and a
-contour-integral backend in the spirit of
+is broadly valid and typically cheapest, a dedicated Robinson-style asymptotic
+patch for the complete real positive near-`z = 1` Bose/Lerch regime with
+`a = 1`, a direct real-axis integral on the negative real line to stabilize
+large-fugacity Fermi-Dirac evaluations, and a contour-integral backend in the spirit of
 [Computing the Lerch transcendent](https://fredrikj.net/blog/2022/02/computing-the-lerch-transcendent/).
-The contour method acts as the general fallback, including for the complete
-positive-real near-`z = 1` regime where the series becomes expensive. For the
-upper incomplete case (`b > 0`), the implementation first reuses the same
-series path when `|z| < 1` is still favourable, and otherwise combines the
-complete evaluation with a tail correction computed by adaptive quadrature.
+The contour method remains the robust general fallback once the easy series and
+the narrow near-`z = 1` asymptotic patch no longer apply. For the upper
+incomplete case (`b > 0`), the implementation first reuses the same series path
+when `|z| < 1` is still favourable, and otherwise combines the complete
+evaluation with a tail correction computed by adaptive quadrature.
 
 In practice, this gives a good tradeoff between speed and reliable evaluation,
 especially near difficult regions such as branch cuts, large fugacity, and
@@ -59,6 +60,20 @@ $z\in \mathbb C\backslash [e^{b},\infty)$. The practical evaluation map is:
 
 This keeps the easy cases fast while preserving a robust fallback for difficult
 near-cut and complex inputs.
+
+For the complete real positive near-degenerate Bose/Lerch regime with `a = 1`,
+the package uses the asymptotic variable `\mu = \log(z)` and the Robinson-style
+expansion
+
+$$
+\operatorname{Li}_s(e^\mu)
+= \Gamma(1-s)(-\mu)^{s-1}
++ \sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},
+$$
+
+with the corresponding logarithmic continuation for positive integer `s`. This
+patch is currently applied only for the complete case, real `0 < z < 1`,
+principal branch, and `a = 1`.
 
 ### Bose and Fermi
 The Bose and Fermi integrals are then evaluated via the identities:
@@ -139,6 +154,10 @@ A larger example reproducing the three-panel quantum ideal gas comparison figure
 included in `examples/quantum_ideal_gas_figure.jl`. It writes
 `examples/quantum_ideal_gas_figure.png`.
 
+A near-degenerate Bose example comparing the patched near-`z = 1` regime is
+included in `examples/plot_bose_near_one.jl`. It writes
+`examples/bose_near_one.png`.
+
 ## Speed regression baseline
 
 The repository also includes a small performance regression harness under `perf/`.
@@ -161,4 +180,10 @@ To rerun the strict check:
 
 ```bash
 BFL_ENFORCE_SPEED=1 julia --project=perf -e 'include("perf/speed_regression.jl")'
+```
+
+To benchmark the near-`z = 1` asymptotic patch directly:
+
+```bash
+julia --project=perf -e 'include("perf/benchmark_asymptotics.jl")'
 ```

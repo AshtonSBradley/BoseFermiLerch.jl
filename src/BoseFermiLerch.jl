@@ -3,6 +3,8 @@ module BoseFermiLerch
 import SpecialFunctions: zeta, gamma, loggamma
 using QuadGK
 
+include("asymptotics.jl")
+
 export bose, fermi, lerch
 
 lerch_int(t, z, s, a) = exp(-a * t) * t^(s - 1) / ((1 - z * exp(-t)) * gamma(s))
@@ -155,13 +157,14 @@ Evaluate the upper incomplete Lerch transcendent
 ```
 
 The implementation uses a hybrid backend: a gamma-series path where it is broadly
-valid and benchmark-favoured, a direct real-axis integral for the complete
-negative-real regime that stabilizes Fermi-Dirac evaluations at large fugacity,
-and the contour integral as a robust fallback. For `b > 0`, the incomplete
-function is evaluated as the complete value minus the finite-interval correction
-on `[0, b]`, except for the narrow real interval `1 < z < exp(b)` where the
-incomplete integral is valid but the complete principal branch sits on its cut,
-so the upper integral is evaluated directly.
+valid and benchmark-favoured, a dedicated asymptotic patch for the complete
+real positive near-`z = 1` `a = 1` regime, a direct real-axis integral for the
+complete negative-real regime that stabilizes Fermi-Dirac evaluations at large
+fugacity, and the contour integral as a robust fallback. For `b > 0`, the
+incomplete function is evaluated as the complete value minus the finite-interval
+correction on `[0, b]`, except for the narrow real interval `1 < z < exp(b)`
+where the incomplete integral is valid but the complete principal branch sits
+on its cut, so the upper integral is evaluated directly.
 """
 function lerch(z, s, a, b; rtol = 1e-8)
     check_order(s)
@@ -170,6 +173,12 @@ function lerch(z, s, a, b; rtol = 1e-8)
     check_rtol(rtol)
 
     if b == 0
+        if _should_use_complete_z1_real_asymptotic(z, s, a)
+            zr = real(z)
+            sr = real(s)
+            return _lerch_complete_asymp_z1_real(zr, sr; rtol = rtol)
+        end
+
         if should_use_series(z, s)
             return lerch_series(z, s, a, b; rtol = rtol)
         end
@@ -235,6 +244,8 @@ function bose(z, s, b = 0; rtol = 1e-8)
         return zeta(s)
     elseif s == one(s) && b == zero(b)
         return -log1p(-z)
+    elseif b == zero(b) && _should_use_complete_z1_real_asymptotic(z, s, one(s))
+        return _bose_asymp_z1_real(real(z), real(s); rtol = rtol)
     else
         return z * lerch(z, s, 1.0, b; rtol = rtol)
     end

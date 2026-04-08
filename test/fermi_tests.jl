@@ -27,6 +27,9 @@ fd_ref(s, z; rtol = 1e-8) = z * quadgk(t -> exp(-t) * t^(s - 1) / ((1 + z * exp(
 @test fermi(exp(30), 5 / 2) ≈ fd_ref(5 / 2, exp(30))
 @test fermi(exp(50), 3 / 2; rtol = 1e-7) ≈ fd_ref(3 / 2, exp(50); rtol = 1e-7)
 @test fermi(exp(50), 5 / 2; rtol = 1e-7) ≈ fd_ref(5 / 2, exp(50); rtol = 1e-7)
+@test fermi(exp(20), 3 / 2; rtol = 1e-7) ≈ fd_ref(3 / 2, exp(20); rtol = 1e-7)
+@test fermi(exp(20), 5 / 2; rtol = 1e-7) ≈ fd_ref(5 / 2, exp(20); rtol = 1e-7)
+@test fermi(exp(30), 3 / 2, 0.1; rtol = 1e-7) ≈ exp(30) * lerch(-exp(30), 3 / 2, 1, 0.1; rtol = 1e-7)
 
 let a = 3 / 2
     entropies = map([25, 30, 35, 40, 45, 50]) do x
