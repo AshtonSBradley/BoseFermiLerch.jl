@@ -62,7 +62,7 @@ This keeps the easy cases fast while preserving a robust fallback for difficult
 near-cut and complex inputs.
 
 For the complete real positive near-degenerate Bose/Lerch regime with `a = 1`,
-the package uses the asymptotic variable `\mu = \log(z)` and the Robinson-style
+the package uses the asymptotic variable $\mu = \log(z)$ and the Robinson-style
 expansion
 
 $$\textrm{Li}_s(e^\mu)
