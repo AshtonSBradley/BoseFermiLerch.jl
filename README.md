@@ -66,7 +66,7 @@ the package uses the asymptotic variable `\mu = \log(z)` and the Robinson-style
 expansion
 
 $$
-\operatorname{Li}_s(e^\mu)
+\textrm{Li}_s(e^\mu)
 = \Gamma(1-s)(-\mu)^{s-1}
 + \sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},
 $$
