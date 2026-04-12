@@ -65,11 +65,8 @@ For the complete real positive near-degenerate Bose/Lerch regime with `a = 1`,
 the package uses the asymptotic variable `\mu = \log(z)` and the Robinson-style
 expansion
 
-$$
-\textrm{Li}_s(e^\mu)
-= \Gamma(1-s)(-\mu)^{s-1}
-+ \sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},
-$$
+$$\textrm{Li}_s(e^\mu)
+= \Gamma(1-s)(-\mu)^{s-1}+\sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},$$
 
 with the corresponding logarithmic continuation for positive integer `s`. This
 patch is currently applied only for the complete case, real `0 < z < 1`,
