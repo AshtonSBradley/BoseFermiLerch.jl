@@ -5,7 +5,9 @@
 [![Coverage](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/AshtonSBradley/BoseFermiLerch.jl)
 [![Code Quality](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml/badge.svg)](https://github.com/AshtonSBradley/BoseFermiLerch.jl/actions/workflows/Quality.yml)
 
-Upper incomplete Bose and Fermi integrals. Robust evaluation for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension. 
+The Lerch transcendent contains many special functions as particular cases including the Bose and Fermi functions. An upper incomplete Lerch integral allows natural inclusion of an energy cutoff in such distributions. 
+
+This package provides fast and robust evaluation of the upper incomplete Lerch transcendent for a wide range of arguments such as occurs in thermal ultra-cold gases, based on the [Lerch transcendent](https://en.wikipedia.org/wiki/Lerch_zeta_function) and its upper incomplete integral extension. 
 
 ![](examples/quantum_ideal_gas_figure.png)
 
