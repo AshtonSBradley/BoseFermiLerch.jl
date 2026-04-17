@@ -1,11 +1,12 @@
 using Printf
+using Statistics
 
 const _pkg_root = normpath(joinpath(@__DIR__, ".."))
 if _pkg_root ∉ LOAD_PATH
     pushfirst!(LOAD_PATH, _pkg_root)
 end
 
-using BenchmarkTools
+using Chairmarks
 using BoseFermiLerch
 
 struct SpeedCase
@@ -39,15 +40,15 @@ function run_case(sc::SpeedCase)
     # Warm up the compilation/runtime path before timing.
     lerch(z, s, a, b)
 
-    trial = @benchmarkable lerch($z, $s, $a, $b) seconds = BENCH_SECONDS
-    tune!(trial)
-    run(trial; seconds = WARMUP_SECONDS)
-    result = run(trial; seconds = BENCH_SECONDS)
+    run = @be lerch(z, s, a, b) seconds = BENCH_SECONDS
+    times = getproperty.(run.samples, :time)
+    alloc_counts = getproperty.(run.samples, :allocs)
+    byte_counts = getproperty.(run.samples, :bytes)
 
-    median_ms = median(result).time / 1e6
-    minimum_ms = minimum(result).time / 1e6
-    memory_bytes = median(result).memory
-    allocs = median(result).allocs
+    median_ms = median(times) * 1e3
+    minimum_ms = minimum(times) * 1e3
+    memory_bytes = round(Int, median(byte_counts))
+    allocs = round(Int, median(alloc_counts))
     value = lerch(z, s, a, b)
 
     return (; median_ms, minimum_ms, memory_bytes, allocs, value)

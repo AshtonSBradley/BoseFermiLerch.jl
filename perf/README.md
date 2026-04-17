@@ -3,7 +3,7 @@
 This folder contains a small benchmark matrix for `lerch(z, s, a, b)` that probes:
 
 - well-damped complete values
-- complete values near `z = 1`, which now exercise the contour fallback
+- complete values near `z = 1`, which now exercise the near-one asymptotic patch
 - incomplete values with small and large `b`
 - the real window `1 < z < exp(b)` where the incomplete integral is valid
 - complex complete and incomplete inputs

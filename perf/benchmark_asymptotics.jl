@@ -1,11 +1,12 @@
 using Printf
+using Statistics
 
 const _pkg_root = normpath(joinpath(@__DIR__, ".."))
 if _pkg_root ∉ LOAD_PATH
     pushfirst!(LOAD_PATH, _pkg_root)
 end
 
-using BenchmarkTools
+using Chairmarks
 using QuadGK
 using SpecialFunctions
 using BoseFermiLerch
@@ -26,11 +27,8 @@ function big_bose_ref(z, s; rtol = big"1e-30")
 end
 
 function bench_call(f::F) where {F<:Function}
-    trial = @benchmarkable ($f)() seconds = BENCH_SECONDS
-    tune!(trial)
-    run(trial; seconds = WARMUP_SECONDS)
-    result = run(trial; seconds = BENCH_SECONDS)
-    return median(result).time / 1e6
+    result = @be ($f)() seconds = BENCH_SECONDS
+    return median(getproperty.(result.samples, :time)) * 1e3
 end
 
 println("Near-z=1 Bose asymptotic benchmark")

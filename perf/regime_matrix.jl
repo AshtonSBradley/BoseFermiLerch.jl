@@ -1,11 +1,12 @@
 using Printf
+using Statistics
 
 const _pkg_root = normpath(joinpath(@__DIR__, ".."))
 if _pkg_root ∉ LOAD_PATH
     pushfirst!(LOAD_PATH, _pkg_root)
 end
 
-using BenchmarkTools
+using Chairmarks
 using BoseFermiLerch
 
 const BENCH_SECONDS = 0.08
@@ -28,38 +29,26 @@ const COMPLEX_CASES = [
     (0.95 + 0.05im, 0.5),
 ]
 
-function bench_expr(f)
-    trial = @benchmarkable $f seconds = BENCH_SECONDS
-    tune!(trial)
-    run(trial; seconds = WARMUP_SECONDS)
-    return run(trial; seconds = BENCH_SECONDS)
+function bench_expr(f::F) where {F<:Function}
+    return @be ($f)() seconds = BENCH_SECONDS
 end
 
 function bench_lerch(z, s, a, b; rtol = 1e-9)
     lerch(z, s, a, b; rtol = rtol)
-    trial = @benchmarkable lerch($z, $s, $a, $b; rtol = $rtol) seconds = BENCH_SECONDS
-    tune!(trial)
-    run(trial; seconds = WARMUP_SECONDS)
-    result = run(trial; seconds = BENCH_SECONDS)
-    return median(result).time / 1e6
+    result = @be lerch(z, s, a, b; rtol = rtol) seconds = BENCH_SECONDS
+    return median(getproperty.(result.samples, :time)) * 1e3
 end
 
 function bench_complete_backends(z, s, a; rtol = 1e-10)
     vs = BoseFermiLerch.lerch_series(z, s, a, 0; rtol = rtol)
     vc = BoseFermiLerch.lerch_complete_contour(z, s, a; rtol = rtol)
 
-    series_trial = @benchmarkable BoseFermiLerch.lerch_series($z, $s, $a, 0; rtol = $rtol) seconds = BENCH_SECONDS
-    contour_trial = @benchmarkable BoseFermiLerch.lerch_complete_contour($z, $s, $a; rtol = $rtol) seconds = BENCH_SECONDS
-    tune!(series_trial)
-    tune!(contour_trial)
-    run(series_trial; seconds = WARMUP_SECONDS)
-    run(contour_trial; seconds = WARMUP_SECONDS)
-    series_result = run(series_trial; seconds = BENCH_SECONDS)
-    contour_result = run(contour_trial; seconds = BENCH_SECONDS)
+    series_result = @be BoseFermiLerch.lerch_series(z, s, a, 0; rtol = rtol) seconds = BENCH_SECONDS
+    contour_result = @be BoseFermiLerch.lerch_complete_contour(z, s, a; rtol = rtol) seconds = BENCH_SECONDS
 
     return (
-        series_ms = median(series_result).time / 1e6,
-        contour_ms = median(contour_result).time / 1e6,
+        series_ms = median(getproperty.(series_result.samples, :time)) * 1e3,
+        contour_ms = median(getproperty.(contour_result.samples, :time)) * 1e3,
         rel_diff = abs(vs - vc) / abs(vc),
     )
 end
