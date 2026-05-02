@@ -18,9 +18,11 @@ complex arguments. For the complete Lerch transcendent (`b = 0`), it uses a
 hybrid map: the convergent gamma-series in the easy `|z| < 1` regime where it
 is broadly valid and typically cheapest, a dedicated Robinson-style asymptotic
 patch for the complete real positive near-`z = 1` Bose/Lerch regime with
-`a = 1`, a direct real-axis integral on the negative real line to stabilize
-large-fugacity Fermi-Dirac evaluations, and a contour-integral backend in the spirit of
-[Computing the Lerch transcendent](https://fredrikj.net/blog/2022/02/computing-the-lerch-transcendent/).
+`a = 1`, a tolerance-aware leading-term shortcut plus a log-scaled real-axis
+integral for large positive orders in complete `a = 1` polylog cases, a direct
+real-axis integral on the negative real line to stabilize
+large-fugacity Fermi-Dirac evaluations, and a contour-integral backend in the
+spirit of [Computing the Lerch transcendent](https://fredrikj.net/blog/2022/02/computing-the-lerch-transcendent/).
 The contour method remains the robust general fallback once the easy series and
 the narrow near-`z = 1` asymptotic patch no longer apply. For the upper
 incomplete case (`b > 0`), the implementation first reuses the same series path
@@ -57,8 +59,13 @@ robust evaluation for a wide range of arguments, this package evaluates for
 $z\in \mathbb C\backslash [e^{b},\infty)$. The practical evaluation map is:
 
 - for broad `|z| < 1` regimes, use the convergent series below
-- for complete negative-real arguments, use direct adaptive quadrature on the real axis
-- otherwise, use the contour backend, and for `b > 0` subtract the lower-tail correction
+- for complete `a = 1` polylog cases at large positive `s`, use the leading
+  term once the remaining tail is below tolerance, or a log-scaled normalized
+  integral otherwise
+- for complete negative-real arguments, use direct adaptive quadrature on the
+  real axis
+- otherwise, use the contour backend, and for `b > 0` subtract the lower-tail
+  correction
 
 This keeps the easy cases fast while preserving a robust fallback for difficult
 near-cut and complex inputs.
@@ -67,8 +74,10 @@ For the complete real positive near-degenerate Bose/Lerch regime with `a = 1`,
 the package uses the asymptotic variable $\mu = \log(z)$ and the Robinson-style
 expansion
 
-$$\textrm{Li}_s(e^\mu)
-= \Gamma(1-s)(-\mu)^{s-1}+\sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},$$
+$$
+\textrm{Li}_s(e^\mu)
+= \Gamma(1-s)(-\mu)^{s-1}+\sum_{k=0}^{\infty}\zeta(s-k)\frac{\mu^k}{k!},
+$$
 
 with the corresponding logarithmic continuation for positive integer `s`. This
 patch is currently applied only for the complete case, real `0 < z < 1`,
@@ -76,9 +85,14 @@ principal branch, and `a = 1`.
 
 ### Bose and Fermi
 The Bose and Fermi integrals are then evaluated via the identities:
-$$g_\nu(z,\varepsilon)=z\Phi(z,\nu,1,\varepsilon)$$
 
-$$f_\nu(z,\varepsilon)=z\Phi(-z,\nu,1,\varepsilon)$$
+$$
+g_\nu(z,\varepsilon)=z\Phi(z,\nu,1,\varepsilon)
+$$
+
+$$
+f_\nu(z,\varepsilon)=z\Phi(-z,\nu,1,\varepsilon)
+$$
 
 ### Special cases 
 
@@ -162,18 +176,20 @@ included in `examples/plot_bose_near_one.jl`. It writes
 The repository also includes a small performance regression harness under `perf/`.
 A recent strict run produced the following median timings:
 
-| Case | Arguments `(z, s, a, b)` | Median time (ms) | Budget (ms) |
+| Case | Arguments `(z, s, a, b)` | Median (μs) | Budget (μs) |
 | --- | --- | ---: | ---: |
-| `complete_well_damped` | `(0.5, 2, 1, 0)` | `0.002` | `0.400` |
-| `complete_near_one` | `(0.999999, 2, 1, 0)` | `0.005` | `1.500` |
-| `incomplete_small_b` | `(0.5, 2, 1, 0.05)` | `0.001` | `1.500` |
-| `incomplete_near_one_small_b` | `(0.999, 2, 1, 0.05)` | `0.002` | `1.500` |
-| `incomplete_just_above_one_small_b` | `(1.01, 2, 1, 0.05)` | `0.002` | `1.500` |
-| `incomplete_large_b` | `(0.5, 2, 1, 1)` | `0.001` | `1.500` |
-| `real_cut_window` | `(1.5, 2, 1, 1)` | `0.002` | `1.500` |
-| `fermi_complete_equiv` | `(-0.8, 2, 1, 0)` | `0.002` | `0.600` |
-| `complex_complete` | `(0.6 + 0.2im, 2, 1, 0)` | `0.001` | `2.500` |
-| `complex_incomplete` | `(0.6 + 0.2im, 2, 1, 0.5)` | `0.002` | `3.000` |
+| `complete_well_damped` | `(0.5, 2, 1, 0)` | `0.243` | `400.000` |
+| `complete_near_one` | `(0.999999, 2, 1, 0)` | `0.242` | `1500.000` |
+| `incomplete_small_b` | `(0.5, 2, 1, 0.05)` | `0.798` | `1500.000` |
+| `incomplete_near_one_small_b` | `(0.999, 2, 1, 0.05)` | `5.508` | `1500.000` |
+| `incomplete_just_above_one_small_b` | `(1.01, 2, 1, 0.05)` | `3.182` | `1500.000` |
+| `incomplete_large_b` | `(0.5, 2, 1, 1)` | `1.083` | `1500.000` |
+| `real_cut_window` | `(1.5, 2, 1, 1)` | `2.201` | `1500.000` |
+| `fermi_complete_equiv` | `(-0.8, 2, 1, 0)` | `0.556` | `600.000` |
+| `complex_complete` | `(0.6 + 0.2im, 2, 1, 0)` | `0.966` | `2500.000` |
+| `complex_incomplete` | `(0.6 + 0.2im, 2, 1, 0.5)` | `2.083` | `3000.000` |
+| `large_order_complex` | `(-5.0 - 2.1im, 100, 1, 0)` | `0.012` | `100.000` |
+| `very_large_order_complex` | `(-5.0 - 2.1im, 2000, 1, 0)` | `0.012` | `20.000` |
 
 To rerun the strict check:
 

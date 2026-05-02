@@ -51,6 +51,31 @@ function should_use_real_integral(z)
     return isreal(z) && real(z) < 0
 end
 
+function should_use_complete_leading_term(z, s, a, rtol)
+    a == one(a) || return false
+    isreal(s) || return false
+    !(isreal(z) && real(z) > 1) || return false
+
+    absz = abs(z)
+    correction_log = log(max(absz, absz^2, 1.0)) - real(s) * log(2)
+    return correction_log < log(float(rtol))
+end
+
+function should_use_large_order_complete_integral(z, s, a)
+    a == one(a) || return false
+    isreal(s) || return false
+    real(s) >= 50 || return false
+    return !(isreal(z) && real(z) > 1)
+end
+
+function lerch_complete_large_order_integral(z, s; rtol = 1e-8)
+    sr = real(float(s))
+    loggamma_s = loggamma(sr)
+    integrand(t) = t == Inf ? zero(complex(z)) :
+        exp((sr - 1) * log(t) - t - loggamma_s) / (1 - z * exp(-t))
+    return quadgk(integrand, 0.0, Inf; rtol = rtol)[1]
+end
+
 function lerch_series(z, s, a, b; rtol = 1e-9, maxiter = 100_000)
     gamma_s = gamma(s)
     total = zero(promote_type(typeof(z), typeof(s), typeof(a), typeof(b)))
@@ -160,7 +185,8 @@ The implementation uses a hybrid backend: a gamma-series path where it is broadl
 valid and benchmark-favoured, a dedicated asymptotic patch for the complete
 real positive near-`z = 1` `a = 1` regime, a direct real-axis integral for the
 complete negative-real regime that stabilizes Fermi-Dirac evaluations at large
-fugacity, and the contour integral as a robust fallback. For `b > 0`, the
+fugacity, a large-order complete polylog path, and the contour integral as a
+robust fallback. For `b > 0`, the
 incomplete function is evaluated as the complete value minus the finite-interval
 correction on `[0, b]`, except for the narrow real interval `1 < z < exp(b)`
 where the incomplete integral is valid but the complete principal branch sits
@@ -179,8 +205,16 @@ function lerch(z, s, a, b; rtol = 1e-8)
             return _lerch_complete_asymp_z1_real(zr, sr; rtol = rtol)
         end
 
+        if should_use_complete_leading_term(z, s, a, rtol)
+            return isreal(z) ? one(float(real(z))) : one(complex(z))
+        end
+
         if should_use_series(z, s)
             return lerch_series(z, s, a, b; rtol = rtol)
+        end
+
+        if should_use_large_order_complete_integral(z, s, a)
+            return lerch_complete_large_order_integral(z, s; rtol = rtol)
         end
 
         # On the negative real interval, the direct integral is regular and avoids
